@@ -3,6 +3,8 @@
 Data da análise: 29/10/2026
 Autor: Luiz Henrique Maiolini Machado (`luizhmmachado`)
 
+> **Nota de implementação (MVP):** a versão entregue não usa Supabase nem autenticação. Perfil e histórico ficam no navegador (`localStorage`), o último resultado em `sessionStorage`, e as fontes públicas são consultadas novamente a cada análise. As seções que descrevem Supabase/Auth permanecem como referência para a fase 2.
+
 ---
 
 ## 1. Resumo executivo

@@ -10,6 +10,7 @@ coverage/
 !.env.example
 
 *.log
+*.tsbuildinfo
 .DS_Store
 
 docs/design/*.json

@@ -1,0 +1,48 @@
+{
+  "name": "statsman",
+  "version": "0.1.0",
+  "description": "Análise de adversários de Counter-Strike 2 antes da partida: nível GamersClub, nível FACEIT, Leetify Rating, HLTV Rating (média calculada pela Leetify) e comparação direta com o seu próprio perfil.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luizhmmachado/statsman.git"
+  },
+  "keywords": [
+    "cs2",
+    "counter-strike",
+    "leetify",
+    "gamersclub",
+    "faceit",
+    "nextjs"
+  ],
+  "author": "Luiz Machado",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/luizhmmachado/statsman/issues"
+  },
+  "homepage": "https://github.com/luizhmmachado/statsman#readme",
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "next": "^15.5.28",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "autoprefixer": "^10.6.2",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=20.9"
+  }
+}
