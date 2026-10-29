@@ -1,12 +1,13 @@
 # StatsMan
 
-Análise de adversários de Counter-Strike 2 antes da partida: nível GamersClub, nível FACEIT, Leetify Rating, rating HLTV (quando existir) e comparação direta com o seu próprio perfil.
+Análise de adversários de Counter-Strike 2 antes da partida: nível GamersClub, nível FACEIT, Leetify Rating, HLTV Rating (média calculada pela Leetify) e comparação direta com o seu próprio perfil.
 
 ## Status
 
 Fase 0 - requisitos, viabilidade e design.
 
 - [Análise de requisitos e viabilidade](docs/analise-requisitos.md)
+- [APIs testadas e contratos](docs/apis-testadas.md)
 - [Prompt para a IA do Figma](docs/figma-prompt.md)
 - [Tutorial: exportar o design via API do Figma](docs/figma-tutorial.md)
 

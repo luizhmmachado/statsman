@@ -86,7 +86,8 @@ TOM DE VOZ E COPY (pt-BR)
   - "Analise o lobby antes do primeiro round."
   - "Cole os links dos perfis. A gente compara com o seu."
   - "Dados parciais: a GamersClub não respondeu."
-  - "HLTV Rating indisponível para jogadores de matchmaking."
+  - "HLTV Rating é a média das últimas 10 partidas, calculada pela Leetify."
+  - "HLTV Rating indisponível para este jogador."
   - "Índice de ameaça é uma estimativa, não uma probabilidade de vitória."
 - Não use promessas de vitória. Não use "hack", "cheat" ou "trapaça".
 
@@ -144,16 +145,16 @@ TELAS E CONTEÚDO
 - Resumo no topo: "Você x média do lobby" com 4 métricas: Leetify Rating, Aim, ADR, Winrate.
 - Gráfico de barras horizontais comparando você com a média dos adversários.
 - Dois blocos lado a lado: "Seu time" e "Adversários", cada um com 5 cards.
-- Card de jogador: avatar, nick, badge GC, badge FACEIT, Leetify Rating, HLTV "N/D", K/D, ADR, HS%, indicador de ameaça, link "Ver no Leetify".
+- Card de jogador: avatar, nick, badge GC, badge FACEIT, Leetify Rating, HLTV Rating (média Leetify, últimas 10), K/D, ADR, HS%, indicador de ameaça, link "Ver no Leetify".
 - Destaque visual para o jogador com maior índice de ameaça.
 - Ordenação por ameaça dentro de cada time.
 - Rodapé com "Data Provided by Leetify" e aviso de estimativa.
 - Exemplos de dados:
-  - Você: "L. Machado", GC 14, FACEIT 7 (1.842 ELO), Leetify 1.12, Aim 72, ADR 84.
-  - Adversário 1: "v1per", GC 18, FACEIT 9 (2.310 ELO), Leetify 1.38, Aim 81, ADR 96, ameaça Alta.
-  - Adversário 2: "duckz", GC 12, FACEIT 6 (1.410 ELO), Leetify 0.94, Aim 61, ADR 71, ameaça Média.
-  - Adversário 3: "KRN", GC 21, FACEIT 10 (3.220 ELO), Leetify 1.71, Aim 92, ADR 108, ameaça Crítica.
-  - Demais jogadores com dados variados, incluindo um "HLTV N/D" e um "sem perfil GamersClub".
+  - Você: "L. Machado", GC 14, FACEIT 7 (1.842 ELO), Leetify 1.12, HLTV 1.21, Aim 72, ADR 84.
+  - Adversário 1: "v1per", GC 18, FACEIT 9 (2.310 ELO), Leetify 1.38, HLTV 1.34, Aim 81, ADR 96, ameaça Alta.
+  - Adversário 2: "duckz", GC 12, FACEIT 6 (1.410 ELO), Leetify 0.94, HLTV 0.92, Aim 61, ADR 71, ameaça Média.
+  - Adversário 3: "KRN", GC 21, FACEIT 10 (3.220 ELO), Leetify 1.71, HLTV 1.52, Aim 92, ADR 108, ameaça Crítica.
+  - Demais jogadores com dados variados, incluindo um jogador sem HLTV calculado (N/D) e um sem perfil GamersClub.
 
 07-resultado-confronto-desktop
 - Título "Você x KRN".
@@ -169,7 +170,7 @@ TELAS E CONTEÚDO
 - Drawer lateral de 480 px sobre o lobby.
 - Cabeçalho com avatar, nick, país, links de plataforma.
 - Abas: "Visão geral", "Últimas partidas", "Mapas".
-- Visão geral: cards de Leetify Rating, Aim, Positioning, Utility, Clutch, Opening, Premier, FACEIT, GamersClub, HLTV.
+- Visão geral: cards de Leetify Rating, HLTV Rating (média Leetify), Aim, Positioning, Utility, Clutch, Opening, Premier, FACEIT, GamersClub.
 - Últimas partidas: lista com mapa, resultado, K/D, ADR, rating.
 - Mapas: barras de winrate por mapa.
 - Rodapé: "Data Provided by Leetify" e "Ver no Leetify".
@@ -241,7 +242,7 @@ ESTADOS QUE PRECISAM EXISTIR
 - Fonte lenta.
 
 REGRAS DE CONTEÚDO
-- Nunca invente um HLTV Rating para jogador de matchmaking. Mostre "N/D" com tooltip "A HLTV não publica rating para partidas de matchmaking".
+- Use o HLTV Rating calculado pela Leetify: média das últimas 10 partidas. Mostre "N/D" com tooltip "HLTV Rating indisponível para este jogador" quando não houver dados. Nunca chame de rating oficial da HLTV.
 - O Leetify Rating deve aparecer com o nome e a escala originais.
 - O índice de ameaça deve ter tooltip: "Estimativa baseada em rating, aim, opening, ADR e forma recente. Não é probabilidade de vitória."
 - O rodapé deve conter: "StatsMan não é afiliado à Valve, Leetify, FACEIT ou GamersClub." e "Data Provided by Leetify".

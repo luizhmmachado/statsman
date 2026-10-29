@@ -57,7 +57,7 @@ Nada no desenho proposto injeta código no jogo, lê memória, cria overlay com 
 - Detecção automática dos 10 jogadores em partida ao vivo no matchmaking oficial.
 - Overlay dentro do jogo.
 - Aplicativo nativo iOS/Android.
-- Rating HLTV para jogadores de matchmaking comum (a HLTV não publica esse dado).
+- Rating HLTV oficial para jogadores de matchmaking comum (a HLTV não publica esse dado). O app usará o HLTV Rating calculado pela Leetify, devidamente identificado.
 - Scraping autenticado de GamersClub/FACEIT.
 - Automação de fila, aceite de partida ou qualquer ação dentro do jogo.
 
@@ -80,7 +80,7 @@ Nada no desenho proposto injeta código no jogo, lê memória, cria overlay com 
 | Nível GamersClub | Alta, com ressalva | Endpoint público não documentado da GamersClub (testado com sucesso). Não é API oficial; pode mudar. Fallback: link manual. |
 | Nível FACEIT | Alta | FACEIT Data API v4 com chave gratuita de servidor. Fallback: Leetify retorna `ranks.faceit` e `faceit_elo` para contas vinculadas. |
 | Leetify Rating | Alta | Leetify Public CS API v3. Funciona sem chave, com limite de requisições; chave gratuita disponível. |
-| HLTV Rating | Baixa para o público geral | A HLTV calcula rating apenas em partidas que ela cobre (cenário profissional). Para matchmaking comum não existe. Exibir "N/D" com explicação e usar Leetify Rating como métrica principal. |
+| HLTV Rating | Alta, via Leetify | A HLTV não calcula rating para matchmaking comum, mas a Leetify calcula um `hltvRating` compatível por partida. O app busca essas partidas em lote e exibe a média das últimas 10, identificada como "HLTV Rating (média Leetify)". |
 | Buscar automaticamente ao entrar na partida | Baixa no matchmaking oficial | GSI não entrega os outros jogadores enquanto se joga. Ver seção 4. |
 | Pedir links dos perfis | Alta | Fluxo principal do MVP. |
 | Comparar sempre com o próprio jogador | Alta | O perfil do usuário é o baseline de todas as comparações. |
@@ -182,15 +182,32 @@ Essa decisão também responde à condição do requisito: como a automação co
   - nunca exigir sessão/cookie do usuário no MVP.
 - Fonte adicional: https://cs-api.gamersclub.com.br/ e https://api.gamersclub.com.br/
 
-### 5.4 HLTV
+### 5.4 HLTV Rating (calculado pela Leetify)
 
-- A HLTV não oferece API pública.
-- O "HLTV Rating" é calculado em partidas do cenário competitivo cobertas pela HLTV. Jogadores de matchmaking comum não possuem esse valor.
-- Decisão:
-  - exibir `N/D` com tooltip explicando;
-  - quando o jogador for profissional e o dado existir em fonte licenciada, exibir com a fonte;
-  - não rotular o Leetify Rating como HLTV Rating;
-  - não criar um "HLTV Rating caseiro" sem deixar claro que é estimativa. Se for criado no futuro, o rótulo será "Índice de impacto (estimado)" e não "HLTV Rating".
+A HLTV.org não oferece API pública e não calcula rating para partidas de matchmaking comum. Porém, a **Leetify calcula um HLTV Rating compatível por partida** e o exibe nas páginas de partida e nas tabelas do site. Esse valor pode ser obtido e usado no app.
+
+Evidência de teste local (29/10/2026):
+
+```http
+POST https://api.cs-prod.leetify.com/api/games/list-by-ids
+Content-Type: application/json
+
+{
+  "gameIds": ["e4519a33-781e-40f2-b668-6631cac4e983", "..."],
+  "steam64Id": "76561198034202275"
+}
+```
+
+O retorno inclui, por partida, `playerStats[].hltvRating`, além de `aim`, `utility`, `positioning`, `leetifyRating`, `kdRatio` e `hsp`; `kast` veio nulo nesse endpoint. Um lote de 10 partidas respondeu em cerca de 1,9 s.
+
+Observações importantes:
+
+- Esse endpoint é o usado pela aplicação web da Leetify e **não faz parte da documentação pública da API**. Pode mudar ou ser bloqueado sem aviso.
+- A estratégia é encapsular em um adapter com timeout, limite de concorrência e cache curto em memória; se falhar, exibir `N/D`.
+- O valor exibido no card será a **média das últimas 10 partidas válidas**, com o rótulo "HLTV Rating (média Leetify)" e tooltip explicando a origem.
+- No detalhe do jogador, mostrar o `hltvRating` de cada partida, com link "Ver no Leetify".
+- Nunca chamar de "rating oficial da HLTV". A atribuição é sempre da Leetify.
+- Não persistir esses valores no banco, conforme as diretrizes da Leetify.
 
 ### 5.5 Steam e Valve
 
@@ -279,7 +296,7 @@ Supabase (perfis, metadados de análise, inscrições de push)
 
 - `Promise.allSettled` por jogador e por fonte.
 - Timeout de 6 s por fonte.
-- Cache em memória de 5 min por SteamID (não persistido).
+- Leetify: perfil pela API pública v3 e HLTV Rating por lote no endpoint de partidas; cache em memória de 5 min por SteamID (não persistido).
 - Deduplicação de requisições concorrentes do mesmo jogador.
 - Rate limit por IP e por usuário.
 - Resposta normalizada com `sources: { leetify: "ok" | "error" | "not_found", ... }`.
@@ -317,7 +334,14 @@ type PlayerAnalysis = {
   } | null;
   hltv: {
     rating: number | null;
-    source: string | null;
+    matchesCount: number;
+    source: "leetify" | null;
+    perMatch: Array<{
+      matchId: string;
+      mapName: string;
+      finishedAt: string;
+      rating: number;
+    }>;
   } | null;
   sources: Record<string, "ok" | "error" | "not_found">;
 };
@@ -463,7 +487,7 @@ COMPANION_SHARED_SECRET=
 | API da Leetify mudar ou limitar | Alto | Camada de adaptação, chave gratuita, cache curto, fallback visual |
 | Endpoint da GamersClub bloquear | Médio | Fonte opcional, timeout, fallback manual |
 | FACEIT negar chave ou limitar | Médio | Degradar para dados da Leetify |
-| HLTV não ter rating | Alto para o requisito | Comunicar `N/D`; usar Leetify Rating |
+| Endpoint interno da Leetify mudar | Médio | Adapter isolado, cache curto, fallback `N/D` e Leetify Rating como métrica principal |
 | Detecção automática não funcionar | Alto | Fluxo manual é o principal; companion é beta |
 | Anti-cheat | Alto | Nenhuma interação com o processo do jogo |
 | Vazamento de chaves | Alto | Somente server-side; `.env` fora do git |
@@ -475,7 +499,7 @@ COMPANION_SHARED_SECRET=
 
 1. Dado um conjunto de até 10 links válidos, a análise é exibida em até 10 s.
 2. Vanity URL da Steam é resolvida sem chave.
-3. Nível GamersClub, nível FACEIT e Leetify Rating aparecem quando disponíveis.
+3. Nível GamersClub, nível FACEIT, Leetify Rating e HLTV Rating (média Leetify) aparecem quando disponíveis.
 4. Quando uma fonte falha, o restante continua e a UI indica a falha.
 5. A comparação usa o perfil do usuário como baseline.
 6. Nenhum payload de terceiros é gravado no banco.
