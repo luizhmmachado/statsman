@@ -8,12 +8,13 @@ type Match = {
   id: string;
   map_name: string;
   finished_at: string | null;
-  stats: { steam64_id: string; total_kills?: number; total_deaths?: number; kd_ratio?: number }[];
+  stats: { steam64_id: string; total_kills?: number; total_deaths?: number; kd_ratio?: number; leetify_rating?: number }[];
 };
 
 export function PartidasClient() {
   const [me, setMe] = useState<MeProfile | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
+  const [windowSize, setWindowSize] = useState<10 | 30 | 90>(10);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -38,6 +39,17 @@ export function PartidasClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [me?.steamId64]);
 
+  const slice = matches.slice(0, windowSize);
+  const avgLeetify = slice.length
+    ? slice.reduce((t, m) => t + (m.stats?.[0]?.leetify_rating ?? 0), 0) / slice.length
+    : 0;
+  const avgKd = slice.length
+    ? slice.reduce((t, m) => {
+        const s = m.stats?.[0];
+        return t + (s && s.total_deaths ? (s.total_kills ?? 0) / s.total_deaths : 0);
+      }, 0) / slice.length
+    : 0;
+
   if (!me) {
     return (
       <div className="card p-6 text-sm text-muted">
@@ -52,6 +64,28 @@ export function PartidasClient() {
       <p className="text-sm text-muted">
         {me.name} · {matches.length} partida(s) carregada(s) via Leetify.
       </p>
+      <div className="flex gap-2">
+        {[10, 30, 90].map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => setWindowSize(n as 10 | 30 | 90)}
+            className={`rounded-lg px-3 py-1.5 text-sm ${windowSize === n ? "bg-primary text-primaryInk" : "bg-surface2 text-muted"}`}
+          >
+            Últimas {n}
+          </button>
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div className="card p-4">
+          <div className="text-xs text-muted">Leetify Rating (média)</div>
+          <div className="font-mono text-xl text-ink">{avgLeetify.toFixed(3)}</div>
+        </div>
+        <div className="card p-4">
+          <div className="text-xs text-muted">K/D (média)</div>
+          <div className="font-mono text-xl text-ink">{avgKd.toFixed(2)}</div>
+        </div>
+      </div>
       {loading && <p className="text-sm text-muted">Carregando...</p>}
       <ul className="space-y-2">
         {matches.map((m) => {
