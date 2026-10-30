@@ -16,6 +16,9 @@ export function PartidasClient() {
   const [me, setMe] = useState<MeProfile | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
   const [windowSize, setWindowSize] = useState<10 | 30 | 90>(10);
+  const [authCode, setAuthCode] = useState("");
+  const [steamMatches, setSteamMatches] = useState<string[]>([]);
+  const [loadingSteam, setLoadingSteam] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -51,6 +54,18 @@ export function PartidasClient() {
       }, 0) / slice.length
     : 0;
 
+  const fetchSteamMatches = async () => {
+    if (!me?.steamId64 || !authCode) return;
+    setLoadingSteam(true);
+    try {
+      const res = await fetch(`/api/steam-matches?steamId=${encodeURIComponent(me.steamId64)}&authCode=${encodeURIComponent(authCode)}`);
+      const json = await res.json();
+      setSteamMatches(json.codes ?? []);
+    } finally {
+      setLoadingSteam(false);
+    }
+  };
+
   if (!me) {
     return (
       <div className="card p-6 text-sm text-muted">
@@ -65,6 +80,22 @@ export function PartidasClient() {
       <p className="text-sm text-muted">
         {me.name} · {matches.length} partida(s) carregada(s) via Leetify.
       </p>
+      <div className="card p-4 space-y-3">
+        <h2 className="font-semibold text-ink">Partidas via Steam (auth code)</h2>
+        <div className="flex gap-2">
+          <input value={authCode} onChange={(e) => setAuthCode(e.target.value)} placeholder="Auth code (ex: 93VU-FF7HR-5BGL)" className="input flex-1" />
+          <button onClick={fetchSteamMatches} disabled={loadingSteam || !authCode} className="btn-primary">
+            {loadingSteam ? "..." : "Buscar"}
+          </button>
+        </div>
+        {steamMatches.length > 0 && (
+          <ul className="space-y-1">
+            {steamMatches.map((c, i) => (
+              <li key={i} className="font-mono text-xs text-muted">{c}</li>
+            ))}
+          </ul>
+        )}
+      </div>
       <div className="flex gap-2">
         {[10, 30, 90].map((n) => (
           <button
