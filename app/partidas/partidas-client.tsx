@@ -19,6 +19,7 @@ export function PartidasClient() {
   const [authCode, setAuthCode] = useState("");
   const [steamMatches, setSteamMatches] = useState<string[]>([]);
   const [loadingSteam, setLoadingSteam] = useState(false);
+  const [steamError, setSteamError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -57,10 +58,14 @@ export function PartidasClient() {
   const fetchSteamMatches = async () => {
     if (!me?.steamId64 || !authCode) return;
     setLoadingSteam(true);
+    setSteamError(null);
     try {
       const res = await fetch(`/api/steam-matches?steamId=${encodeURIComponent(me.steamId64)}&authCode=${encodeURIComponent(authCode)}`);
       const json = await res.json();
+      if (!res.ok) setSteamError(json.error ?? "Erro");
       setSteamMatches(json.codes ?? []);
+    } catch (e) {
+      setSteamError(String(e));
     } finally {
       setLoadingSteam(false);
     }
@@ -88,6 +93,10 @@ export function PartidasClient() {
             {loadingSteam ? "..." : "Buscar"}
           </button>
         </div>
+        {steamError && <p className="text-sm text-danger">{steamError}</p>}
+        {steamMatches.length === 0 && !loadingSteam && !steamError && (
+          <p className="text-sm text-muted">Nenhum código retornado.</p>
+        )}
         {steamMatches.length > 0 && (
           <ul className="space-y-1">
             {steamMatches.map((c, i) => (
