@@ -87,6 +87,10 @@ export function PartidasClient() {
       </p>
       <div className="card p-4 space-y-3">
         <h2 className="font-semibold text-ink">Partidas via Steam (auth code)</h2>
+        <p className="text-xs text-muted">
+          O auth code é gerado no CS2: Configurações → Jogo → "Compartilhar histórico de partidas".
+          Histórico web: <a className="text-primary underline" href="https://steamcommunity.com/my/gcpd/730?tab=matchhistory" target="_blank" rel="noreferrer">steamcommunity.com/my/gcpd/730</a>
+        </p>
         <div className="flex gap-2">
           <input value={authCode} onChange={(e) => setAuthCode(e.target.value)} placeholder="Auth code (ex: 93VU-FF7HR-5BGL)" className="input flex-1" />
           <button onClick={fetchSteamMatches} disabled={loadingSteam || !authCode} className="btn-primary">
