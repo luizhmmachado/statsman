@@ -4,6 +4,7 @@ import { ResolutionError, errorMessage } from "@/lib/errors";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const preferredRegion = "gru1";
 export const maxDuration = 60;
 
 type Body = {

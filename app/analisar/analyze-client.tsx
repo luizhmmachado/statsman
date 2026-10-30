@@ -81,6 +81,22 @@ export function AnalyzeClient() {
   const [allies, setAllies] = useState<Slot[]>(() => makeSlots(4));
   const [enemies, setEnemies] = useState<Slot[]>(() => makeSlots(5));
   const [mapName, setMapName] = useState("");
+  const [importing, setImporting] = useState(false);
+
+  const importRecent = async () => {
+    if (!me?.steamId64) return;
+    setImporting(true);
+    try {
+      const response = await fetch(`/api/recent-players?steamId=${encodeURIComponent(me.steamId64)}`);
+      const json = (await response.json()) as { players?: string[] };
+      const ids = (json.players ?? []).slice(0, 5);
+      setEnemies((slots) =>
+        slots.map((slot, index) => (index < ids.length ? { ...slot, value: ids[index] } : slot)),
+      );
+    } finally {
+      setImporting(false);
+    }
+  };
   const [loading, setLoading] = useState(false);
   const [stage, setStage] = useState(0);
   const [error, setError] = useState<string | null>(null);

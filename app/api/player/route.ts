@@ -4,6 +4,7 @@ import { ResolutionError, errorMessage } from "@/lib/errors";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const preferredRegion = "gru1";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);

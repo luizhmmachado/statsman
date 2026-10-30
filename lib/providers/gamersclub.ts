@@ -67,15 +67,32 @@ export async function getGamersClub(
   }
 
   try {
-    const response = await fetch(`${API_BASE}/v1/user/steam/${encodeURIComponent(steamId64)}`, {
-      headers: {
-        "User-Agent": USER_AGENT,
-        Accept: "application/json",
-        Referer: "https://gamersclub.com.br/",
-      },
+    const path = `/v1/user/steam/${encodeURIComponent(steamId64)}`;
+    const headers = {
+      "User-Agent": USER_AGENT,
+      Accept: "application/json, text/plain, */*",
+      "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+      Referer: "https://gamersclub.com.br/",
+      Origin: "https://gamersclub.com.br",
+      "Sec-Fetch-Site": "same-site",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Dest": "empty",
+    };
+
+    let response = await fetch(`${API_BASE}${path}`, {
+      headers,
       signal: AbortSignal.timeout(6000),
       cache: "no-store",
     });
+
+    if (response.status === 403 || response.status === 429) {
+      const translated = await fetch(
+        `https://api-gamersclub-com-br.translate.goog${path}?_x_tr_sl=auto&_x_tr_tl=pt&_x_tr_hl=pt`,
+        { headers, signal: AbortSignal.timeout(8000), cache: "no-store" },
+      );
+      console.error("[gamersclub] proxy", response.status, translated.status);
+      if (translated.ok) response = translated;
+    }
 
     if (response.status === 404) {
       cached(cache, steamId64, null);

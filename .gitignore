@@ -15,3 +15,6 @@ coverage/
 
 docs/design/*.json
 docs/design/screens/*.png
+
+.vercel/
+.vercel
