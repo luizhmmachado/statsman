@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BarChart3, History, Settings, UserRound } from "lucide-react";
+import { BarChart3, Gamepad2, History, Settings, UserRound } from "lucide-react";
 import { Brand } from "./Brand";
 import { getMe } from "@/lib/storage";
 import type { MeProfile } from "@/lib/types";
 
 const nav = [
   { href: "/analisar", label: "Analisar", icon: BarChart3 },
+  { href: "/partidas", label: "Partidas", icon: Gamepad2 },
   { href: "/historico", label: "Histórico", icon: History },
   { href: "/configuracoes", label: "Configurações", icon: Settings },
 ];
@@ -85,7 +86,7 @@ export function AppHeader() {
         className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
         aria-label="Navegação"
       >
-        <div className="grid grid-cols-3">
+        <div className="grid grid-cols-4">
           {nav.map((item) => {
             const active = pathname.startsWith(item.href);
             const Icon = item.icon;
