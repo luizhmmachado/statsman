@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getMe } from "@/lib/storage";
+import Link from "next/link";
 import type { MeProfile } from "@/lib/types";
 
 type Match = {
@@ -91,7 +92,8 @@ export function PartidasClient() {
         {matches.map((m) => {
           const s = m.stats?.[0];
           return (
-            <li key={m.id} className="card flex items-center justify-between p-4">
+            <li key={m.id} className="card relative flex items-center justify-between p-4">
+              <Link href={`/partidas/${m.id}`} className="absolute inset-0" aria-label="Ver detalhes" />
               <div>
                 <div className="font-semibold text-ink">{m.map_name ?? "—"}</div>
                 <div className="font-mono text-xs text-muted">
